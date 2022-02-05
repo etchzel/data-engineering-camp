@@ -1,6 +1,16 @@
 # Docker and PostgreSQL
 
-## Introduction to Docker
+### Table of Contents
+- [Introduction to Docker](#introduction-to-docker)
+  - [Why docker?](#why-docker)
+  - [Creating a simple data pipeline in docker](#creating-a-simple-data-pipeline-in-docker)
+- [Ingest Data into Postgres Running Locally in Docker](#ingest-data-into-postgres-running-locally-in-docker)
+  - [Run postgres locally with Docker](#run-postgres-locally-with-docker)
+  - [Query the database using `pgcli`](#query-the-database-using-pgcli)
+  - [Exploring the data](#exploring-the-data)
+  - [Ingest the data to the database](#ingest-the-data-to-the-database)
+
+# Introduction to Docker
 
 __Docker__ is a platform as a serivce products that use OS-level virtualization to deliver software in packages called *containers* similar to virtual machines but lighter in resource consumption. Each of these containers bundle the software, libraries, and configuration files so that they are isolated from one another.
 
@@ -18,7 +28,7 @@ Each of those blocks (containers) are self contained, and they will have everyth
 
 <br>
 
-### Why docker?
+## Why docker?
 
 * Reproducibility
     * Docker containers are __stateless__. Any changes done inside a container will __NOT__ be saved when the container is killed and started again. This is an advantage because it allows us to restore any container to its initial state in a *reproducible* manner, but you will have to store data elsewhere if you need to do so; a common way to do so is with volumes.
@@ -30,7 +40,7 @@ Each of those blocks (containers) are self contained, and they will have everyth
 
 <br>
 
-### Creating a simple data pipeline in Docker
+## Creating a simple data pipeline in Docker
 
 To get started we can try to run the following command to verify docker is working:
 
@@ -170,3 +180,39 @@ docker run -it test:pandas 2022-02-05
 ```
 
 ![docker-self-suf](images/docker-self-suf.png)
+
+</br>
+
+# Ingest Data into Postgres Running Locally in Docker
+
+In this part we will try to ingest data [NY Taxi dataset](https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2021-01.csv) into postgres running on Docker.
+
+</br>
+
+## Run postgres locally with Docker
+
+To run a containerized version of postgres, there is a need to provide *environment variables* and *volume* for storing data to the container.
+
+```
+docker run -it \
+    -e POSTGRES_USER="root" \
+    -e POSTGRES_PASSWORD="root" \
+    -e POSTGRES_DB="ny_taxi" \
+    -v $(pwd)/ny_taxi_postgres_data:/var/lib/postgresql/data \
+    -p 5432:5432 \
+    postgres:13
+```
+
+* The flag `-e` set up environment variables for the container. There are 3 environment variables set here:
+    * `POSTGRES_USER` is the username to log into the database.
+    * `POSTGRES_PASSWORD` is the password for the database. Note that these values are __STRICTLY__ for development purposes only.
+    * `POSTGRES_DB` is the name for the database/schema.
+
+* The flag `-v` mount a volume directory to the container. The colon `:` separates the path for the host computer (before colon), and inside the container (after).
+    * Note: Path names must be absolute. In UNIX-like system, we can use `pwd` to print the local folder and use that as a shortcut.
+    * This command will only work if run from a directory which contains the `ny_taxi_postgres_data` subdirectory created above.
+
+* The flag `-p` is for port mapping. The default Postgres port is mapped to the same port in the host computer.
+    * Note: If you have a running Postgres instance in your host computer and it uses the default Postgres port, then the Postgres container will need to use a different port to map to.
+
+* The last argument is the image name `postgres` and tag, denoting the version `13`
