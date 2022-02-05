@@ -2,8 +2,6 @@
 
 ## Introduction to Docker
 
-<br>
-
 __Docker__ is a platform as a serivce products that use OS-level virtualization to deliver software in packages called *containers* similar to virtual machines but lighter in resource consumption. Each of these containers bundle the software, libraries, and configuration files so that they are isolated from one another.
 
 A __Docker image__ is a *snapshot* of a container that we can define to run our software, or in this case our data pipelines. By exporting our Docker images to Cloud providers such as Amazon Web Services or Google Cloud Platform we can run our containers there.
@@ -22,8 +20,6 @@ Each of those blocks (containers) are self contained, and they will have everyth
 
 ### Why docker?
 
-<br>
-
 * Reproducibility
     * Docker containers are __stateless__. Any changes done inside a container will __NOT__ be saved when the container is killed and started again. This is an advantage because it allows us to restore any container to its initial state in a *reproducible* manner, but you will have to store data elsewhere if you need to do so; a common way to do so is with volumes.
 * Local experiments
@@ -35,8 +31,6 @@ Each of those blocks (containers) are self contained, and they will have everyth
 <br>
 
 ### Creating a simple data pipeline in Docker
-
-<br>
 
 To get started we can try to run the following command to verify docker is working:
 
