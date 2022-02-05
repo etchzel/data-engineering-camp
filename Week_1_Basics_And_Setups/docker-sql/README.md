@@ -7,8 +7,8 @@
 - [Ingest Data into Postgres Running Locally in Docker](#ingest-data-into-postgres-running-locally-in-docker)
   - [Run postgres locally with Docker](#run-postgres-locally-with-docker)
   - [Query the database using `pgcli`](#query-the-database-using-pgcli)
-  - [Exploring the data](#exploring-the-data)
   - [Ingest the data to the database](#ingest-the-data-to-the-database)
+- [Connecting Postgres and pgAdmin with Docker network](#connecting-postgres-and-pgadmin-with-docker-network)
 
 # Introduction to Docker
 
@@ -216,3 +216,56 @@ docker run -it \
     * Note: If you have a running Postgres instance in your host computer and it uses the default Postgres port, then the Postgres container will need to use a different port to map to.
 
 * The last argument is the image name `postgres` and tag, denoting the version `13`
+
+Once the container is running, we can query the database using `pgcli`.
+
+</br>
+
+## Query the database using `pgcli`
+
+First of all run the command
+
+```
+pip install pgcli
+```
+
+to install (if not installed yet) command line interface for Postgres which we are going to use to query our database with.
+
+Next run the command
+
+```
+pgcli -h localhost -p 5432 -u root -d ny_taxi
+```
+
+* The flag `-h` is to specify the host. Since this DB is run locally, we use localhost.
+* The flag `-p` is the port.
+* The flag `-u` is the username to log into the DB.
+    * Note that the password is not provided here, but it will be prompted after running the command.
+* The flag `-d` is the database name.
+
+Once successfully connected to the database, we can verify our installation by running a simple query `SELECT 1;`
+
+![docker-postgres-pgcli](images/docker-postgres-pgcli.png)
+
+</br>
+
+## Ingest the data to the database
+
+To get started, first we will download data from the [NYC TLC Trip Record Data website](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page). We will use the records of [Yellow taxi trip for January 2021](https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2021-01.csv). 
+
+```
+wget https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2021-01.csv
+```
+
+The description of each column in the dataset is available [here](https://www1.nyc.gov/assets/tlc/downloads/pdf/data_dictionary_trip_records_yellow.pdf).
+
+Next we will use jupyter notebook and pandas to explore the data on the notebook `upload-data.ipynb`.
+
+The details on the exploration of the data is on the [notebook](upload-data.ipynb).
+
+</br>
+
+# Connecting Postgres and pgAdmin with Docker network
+
+To connect with postgres db, other than using `pgcli`, we can also use `pgAdmin`. It is more convenient because it's a web-based GUI that makes acessing and managing the databases easier.
+

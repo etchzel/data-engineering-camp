@@ -8,9 +8,8 @@
 * Ingest Data into Postgres Running Locally in Docker
     * Run postgres locally with Docker
     * Query the database using `pgcli`
-    * Exploring the data [NY Taxi dataset](https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2021-01.csv)
     * Ingest the data to the database
-* Connect Postgres and pgAdmin for a graphical application to interact with the database
+* Connecting Postgres and pgAdmin with Docker network
     * pgAdmin tool
     * Docker networks
 * Putting the ingestion script to Docker
