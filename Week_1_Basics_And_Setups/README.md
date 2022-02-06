@@ -10,12 +10,13 @@
     * Query the database using `pgcli`
     * Ingest the data to the database
 * Connecting Postgres and pgAdmin with Docker network
-    * pgAdmin tool
-    * Docker networks
+    * Installing and configuring pgAdmin in Docker
+    * Docker Networks
 * Putting the ingestion script to Docker
     * Converting an ipynb notebook to a Python script
     * Parametrizing the script with `argparse`
     * Dockerizing the ingestion script
+        * Optional: HTTP server + ipconfig
 * Running postgres and pgAdmin with `docker-compose`
     * Why `docker-compose`
     * Docker-compose YAML file
@@ -26,7 +27,6 @@
     * Basic data quality checks
     * Left, Right and Outer joins
     * Group by
-* Homework
 * Extras on docker networking
     * Docker networks
     * Port forwarding to the host environment
@@ -35,15 +35,15 @@
 
 ## [Google Cloud Platform and Terraform](terraform-gcp/)
 * [Notes](terraform-gcp/)
-* Terraform Basics
-* Set up GCP
-* Configure IAM and create a service account with proper permissions for the class
-* Install `gcloud sdk` locally
-* Authenticate credentials for the service account so it can be used locally via `gcloud`
-* Enable IAM APIs
-* Install terraform
-* Set up Terraform files: `main.tf` and `variables.tf`
-* Create cloud resources using terraform commands!
+* Introduction to Google Cloud Platform
+    * GCP setup
+    * GCP credentials and SDK
+* Terraform
+    * Terraform setup
+    * Terraform basics
+    * Create GCP resource with Terraform
+
+## [Homework](homework/)
 
 ## Course Resources
 * [Course Repo](https://github.com/DataTalksClub/data-engineering-zoomcamp/tree/main/week_1_basics_n_setup)
