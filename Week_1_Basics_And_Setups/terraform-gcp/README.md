@@ -211,7 +211,8 @@ Besides these 3 blocks, there are additional available blocks:
         * Local values may be grouped in one or more blocks of type `locals`. Local values are often grouped according to usage.
         * Local values are simpler to declare than input variables because they are only a key-value pair.
     * Local values must be accessed with the word `local` (*mind the lack of `s` at the end!*).
-        ```java
+    
+        ```go
         region = local.region
         zone = local.zone
         ```
