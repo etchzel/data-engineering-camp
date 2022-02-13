@@ -1,5 +1,4 @@
 import argparse
-from multiprocessing import connection
 import os
 import pandas as pd
 from sqlalchemy import create_engine
