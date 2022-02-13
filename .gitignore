@@ -12,6 +12,7 @@
 .history
 **/ny_taxi_postgres_data/*
 **/data_pgadmin/*
+**/ingest-data-source
 serving_dir
 *.csv
 .ipynb_checkpoints/

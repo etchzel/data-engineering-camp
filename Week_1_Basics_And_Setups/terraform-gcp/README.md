@@ -5,9 +5,9 @@
     - [GCP setup](#gcp-setup)
     - [GCP access setup](#gcp-access-setup)
 - [Terraform](#terraform)
-    - [Terraform setup]()
-    - [Terraform basics]()
-    - [Create GCP resources with Terraform]()
+    - [Terraform setup](#terraform-setup)
+    - [Terraform basics](#terraform-basics)
+    - [Create GCP resources with Terraform](#create-gcp-resources-with-terraform)
 
 # Introduction to Google Cloud Platform
 

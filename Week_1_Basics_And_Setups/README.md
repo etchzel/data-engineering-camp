@@ -23,10 +23,10 @@
     * Running multiple containers with `docker-compose up`
 * SQL Refresher
     * Adding the Zones table
-    * Inner joins
+    * Basic query and `INNER JOIN`
     * Basic data quality checks
-    * Left, Right and Outer joins
-    * Group by
+    * LEFT, RIGHT, and `OUTER JOIN`
+    * Dealing with date-like columns and GROUP BY
 * Extras on docker networking
     * Docker networks
     * Port forwarding to the host environment

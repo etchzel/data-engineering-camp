@@ -20,6 +20,13 @@
   - [Why `docker-compose`](#why-docker-compose)
   - [Docker-compose YAML file](#docker-compose-yaml-files)
   - [Running multiple containers with `docker-compose up`](#running-multiple-containers-with-docker-compose-up)
+- [SQL Refresher](#sql-refresher)
+  - [Adding the zone tables](#adding-the-zone-tables)
+  - [Basic query and INNER JOIN](#basic-query-and-inner-join)
+  - [Basic data quality checks](#basic-data-quality-checks)
+  - [LEFT, RIGHT, and OUTER JOIN](#left-right-and-outer-join)
+  - [Dealing with date-like columns and GROUP BY](#dealing-with-date-like-columns-and-group-by)
+
 
 # Introduction to Docker
 
@@ -579,3 +586,275 @@ docker-compose up -d
 The flag `-d` runs the container in detached mode.
 
 >To run our dockerized data ingestion script, we need to find the network created by `docker-compose`. Simply use `docker network ls` to find it and then change the network parameter in `docker run`
+
+</br>
+
+# SQL refresher
+
+For this section, we are going to work with 2 tables, `yellow_taxi_trips` and `taxi_zones` table, and perform some SQL queries.
+
+>For a more detailed look into SQL, check out [this article](https://towardsdatascience.com/sql-in-a-nutshell-part-1-basic-real-world-scenarios-33a25ba8d220).
+
+</br>
+
+## Adding the zone tables
+
+Refer to [homework](../homework/README.md)
+
+## Basic query and `INNER JOIN `
+
+The following queries encompasses the basics of SQL query and also the usage of `INNER JOIN`.
+
+```sql
+SELECT
+    *
+FROM
+    yellow_taxi_trips
+LIMIT 100;
+```
+* Selects all rows in the `yellow_taxi_trips` table. If there are more than 100 rows, select only the first 100.
+
+```sql
+SELECT
+    *
+FROM
+    yellow_taxi_trips t,
+    taxi_zones zpu,
+    taxi_zones zdo
+WHERE
+    t."PULocationID" = zpu."LocationID" AND
+    t."DOLocationID" = zdo."LocationID"
+LIMIT 100;
+```
+* Selects all rows in the `yellow_taxi_trips` table. If there are more than 100 rows, select only the first 100.
+* We give aliases to the `yellow_taxi_trips` and `taxi_zones` tables for easier access.
+* We replace the IDs inside `PULocationID` and `DOLocationID` with the actual zone IDs for pick ups and drop offs.
+* We use double quotes (`""`) for the column names because in Postgres we need to use them if the column names contains capital letters.
+
+```sql
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    total_amount,
+    CONCAT(zpu."Borough", '/', zpu."Zone") AS "pickup_loc",
+    CONCAT(zdo."Borough", '/', zdo."Zone") AS "dropoff_loc"
+FROM
+    yellow_taxi_trips t,
+    taxi_zones zpu,
+    taxi_zones zdo
+WHERE
+    t."PULocationID" = zpu."LocationID" AND
+    t."DOLocationID" = zdo."LocationID"
+LIMIT 100;
+```
+* Same as previous but instead of the complete rows we only display specific columns.
+* We make use of ***joins*** (_implicit joins_ in this case) to display combined info as a single column.
+    * The new "virtual" column `pickup_loc` contains the values of both `Borough` and `Zone` columns of the `taxi_zones` table, separated by a slash (`/`).
+    * Same for `dropoff_loc`.
+* More specifically this is an ***inner join***, because we only select the rows that overlap between the 2 tables.
+* Learn more about SQL joins [here](https://dataschool.com/how-to-teach-people-sql/sql-join-types-explained-visually/) and [here](https://www.wikiwand.com/en/Join_(SQL)).
+
+```sql
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    total_amount,
+    CONCAT(zpu."Borough", '/', zpu."Zone") AS "pickup_loc",
+    CONCAT(zdo."Borough", '/', zdo."Zone") AS "dropoff_loc"
+FROM
+    yellow_taxi_trips t JOIN taxi_zones zpu
+        ON t."PULocationID" = zpu."LocationID"
+    JOIN taxi_zones zdo
+        ON t."DOLocationID" = zdo."LocationID"
+LIMIT 100;
+```
+* Exactly the same statement as before but rewritten using explicit `JOIN` keywords.
+    * Explicit inner joins are preferred over implicit inner joins.
+* The `JOIN` keyword is used after the `FROM` statement rather than the `WHERE` statement. The `WHERE` statement is actually unneeded.
+    ```sql
+    SELECT whatever_columns FROM table_1 JOIN table_2_with_a_matching_column ON column_from_1=column_from_2
+    ```
+* You can also use the keyword `INNER JOIN` for clarity.
+* Learn more about SQL joins [here](https://dataschool.com/how-to-teach-people-sql/sql-join-types-explained-visually/) and [here](https://www.wikiwand.com/en/Join_(SQL)).
+
+</br>
+
+## Basic data quality checks
+
+The following queries are about data checks.
+
+```sql
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    total_amount,
+    "PULocationID",
+    "DOLocationID"
+FROM
+    yellow_taxi_trips t
+WHERE
+    "PULocationID" is NULL
+LIMIT 100;
+```
+* Selects rows from the `yellow_taxi_trips` table whose pick up location is null and displays specific columns.
+* If you have not modified the original tables, this query should return an empty list.
+
+```sql
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    total_amount,
+    "PULocationID",
+    "DOLocationID"
+FROM
+    yellow_taxi_trips t
+WHERE
+    "DOLocationID" NOT IN (
+        SELECT "LocationID" FROM taxi_zones
+    )
+LIMIT 100;
+```
+* Selects rows fromn the `yellow_taxi_trips` table whose drop off location ID does not appear in the `taxi_zones` table.
+* If you did not modify any rows in the original datasets, the query would return an empty list.
+
+```sql
+DELETE FROM taxi_zones WHERE "LocationID" = 142;
+```
+* Deletes all rows in the `taxi_zones` table with `LocationID` of 142.
+* If we were to run this query and then run the previous query, we would get a list of rows with `PULocationID` of 142.
+
+</br>
+
+## LEFT, RIGHT, and `OUTER JOIN`
+
+```sql
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    total_amount,
+    CONCAT(zpu."Borough", '/', zpu."Zone") AS "pickup_loc",
+    CONCAT(zdo."Borough", '/', zdo."Zone") AS "dropoff_loc"
+FROM
+    yellow_taxi_trips t LEFT JOIN taxi_zones zpu
+        ON t."PULocationID" = zpu."LocationID"
+    LEFT JOIN taxi_zones zdo
+        ON t."DOLocationID" = zdo."LocationID"
+LIMIT 100;
+```
+* Similar to the join query from before but we use a ***left join*** instead.
+* ***Left joins*** shows all rows from the "left" part of the statement but only the rows from the "right" part that overlap with the "left" part, thus the name.
+* This join is useful if we deleted one of the `LocationID` rows like before. The inner join would omit some rows from the `yellow_taxi_trips` table, but this query will show all rows. However, since one ID is missing, the "virtual" columns we defined to transform location ID's to actual names will appear with empty strings if the query cannot find the location ID.
+* Learn more about SQL joins [here](https://dataschool.com/how-to-teach-people-sql/sql-join-types-explained-visually/) and [here](https://www.wikiwand.com/en/Join_(SQL)).
+
+</br>
+
+## Dealing with date-like columns and `GROUP BY`.
+
+The following queries shows us how to deal with date, datetime, and timestamp type of columns. Additionally, there are also queries involving `GROUP BY` for aggregation.
+
+```sql
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    DATE_TRUNC('DAY', tpep_pickup_datetime),
+    total_amount,
+FROM
+    yellow_taxi_trips t
+LIMIT 100;
+```
+* Selects all rows from the `yellow_taxi_trips` table but displays specific columns.
+* `DATE_TRUNC` is a function that trunctates a timestamp. When using `DAY` as a parameter, it removes any smaller values (hours, minutes, seconds) and displays them as `00:00:00` instead.
+
+```sql
+SELECT
+    tpep_pickup_datetime,
+    tpep_dropoff_datetime,
+    CAST(tpep_pickup_datetime AS DATE) as "day",
+    total_amount,
+FROM
+    yellow_taxi_trips t
+LIMIT 100;
+```
+* Very similar to previous query, but instead it casts the `TIMESTAMP` type to `DATE`, so that the hours:minutes:seconds info is completely omitted rather than show as `00:00:00`. The columns will be displayed under the name `day`.
+
+```sql
+SELECT
+    CAST(tpep_pickup_datetime AS DATE) as "day",
+    COUNT(1)
+FROM
+    yellow_taxi_trips t
+GROUP BY
+    CAST(tpep_pickup_datetime AS DATE)
+ORDER BY "day" ASC;
+```
+* Counts the amount of records in the `yellow_taxi_trips` table grouped by day.
+* We remove the limit of 100 records because we do not want to restrict the amount of info on screen.
+* Grouping does not guarantee order, so we enforce that the rows will be displayed in ascending order from earliest to latest day.
+
+```sql
+SELECT
+    CAST(tpep_pickup_datetime AS DATE) as "day",
+    COUNT(1) as "count",
+    MAX(total_amount),
+    MAX(passenger_count)
+FROM
+    yellow_taxi_trips t
+GROUP BY
+    CAST(tpep_pickup_datetime AS DATE)
+ORDER BY "count" DESC;
+```
+* Similar to the previous query but orders the rows by count and displays them in descending order, so that the day with the highest amount of yellow_taxi_trips is shown first.
+* We also show the maximum amount that a driver earned in a trip for that day and the maximum passenger count on a single trip for that day.
+
+```sql
+SELECT
+    CAST(tpep_pickup_datetime AS DATE) as "day",
+    "DOLocationID",
+    COUNT(1) as "count",
+    MAX(total_amount),
+    MAX(passenger_count)
+FROM
+    yellow_taxi_trips t
+GROUP BY
+    1, 2
+ORDER BY "count" DESC;
+```
+* Similar to previous but we also include the drop off location column and we group by it as well, so that each row contains the amount of yellow_taxi_trips for that location by day.
+* Instead of having to repeat the same line in both the `SELECT` and `GROUP BY` parts, we can simply indicate the arguments we use after the `SELECT` keyword by order number.
+    * SQL is 1-indexed. The first argument is 1, not 0.
+
+```sql
+SELECT
+    CAST(tpep_pickup_datetime AS DATE) as "day",
+    "DOLocationID",
+    COUNT(1) as "count",
+    MAX(total_amount),
+    MAX(passenger_count)
+FROM
+    yellow_taxi_trips t
+GROUP BY
+    1, 2
+ORDER BY
+    "day" ASC,
+    "DOLocationID" ASC;
+```
+* Similar to previous query but we now order by ascending order both by day and then drop off location ID, both in ascending order.
+
+As a final note, SQL commands can be categorized into the following categories:
+* ***DDL***: Data Definition Language.
+    * Define the database schema (create, modify, destroy)
+    * `CREATE`, `DROP`, `ALTER`, `TRUNCATE`, `COMMENT`, `RENAME`
+* ***DQL***: Data Query Language.
+    * Perform queries on the data within schema objects. Get data from the database and impose order upon it.
+    * `SELECT`
+* ***DML***: Data Manipulation Language.
+    * Manipulates data present in the database.
+    * `INSERT`, `UPDATE`, `DELETE`, `LOCK`...
+* ***DCL***: Data Control Language.
+    * Rights, permissions and other controls of the database system.
+    * Usually grouped with DML commands.
+    * `GRANT`, `REVOKE`
+* ***TCL***: Transaction Control Language.
+    * Transactions within the database.
+    * Not a universally considered category.
+    * `COMMIT`, `ROLLBACK`, `SAVEPOINT`, `SET TRANSACTION`
