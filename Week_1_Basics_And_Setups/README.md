@@ -1,7 +1,6 @@
 # Week 1
 
 ## [Docker + PostgreSQL](docker-sql/)
-* [Notes](docker-sql/)
 * Introduction to Docker
     * Why docker?
     * Creating a simple data pipeline in Docker
@@ -34,7 +33,6 @@
     * `.dockerignore` file
 
 ## [Google Cloud Platform and Terraform](terraform-gcp/)
-* [Notes](terraform-gcp/)
 * Introduction to Google Cloud Platform
     * GCP setup
     * GCP credentials and SDK

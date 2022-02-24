@@ -36,11 +36,11 @@ A __Docker image__ is a *snapshot* of a container that we can define to run our 
 
 In our use case, lets say we have a data pipeline, we want to run this data pipeline in a docker container so that this data pipeline is isolated from the rest.
 
-[Images here showing basic flow of data pipeline]
+![data-pipeline](images/diagram1.png)
 
 To run this pipeline on our host computer (windows) and to achieve isolation, we can use docker. A simple architecture to illustrate:
 
-[Images here showing the architecture]
+![docker](images/diagram2.png)
 
 Each of those blocks (containers) are self contained, and they will have everything that the particular service needs such as the software, configurations, and library dependencies in it.
 
