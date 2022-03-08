@@ -16,3 +16,4 @@
 serving_dir
 *.csv
 .ipynb_checkpoints/
+**Week_2_Data_Ingestion/airflow/dags/homework**
