@@ -9,10 +9,7 @@
     - [Q3 Solution](#q3-solution)
 - [Question 4](#question-4)
     - [Q4 Solution](#q4-solution)
-- [Question 5](#question-5)
-    - [Q5 Solution](#q5-solution)
-- [Question 6](#question-6)
-    - [Q6 Solution](#q6-solution)
+- [Solution Files](#solution-files)
 
 # Question 1
 
